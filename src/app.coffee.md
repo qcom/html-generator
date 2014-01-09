@@ -6,7 +6,7 @@
 
 ## Data Variables
 
-* an object representing all data exported from the site database which including
+* an object namespacing all data exported from the site database, which includes
  * a list of available ("Visible" according to the db) skus
  * a map of available "Best Used For" category names to their URLs
 * an export of the api
@@ -24,7 +24,7 @@
 
 ## Utility Functions
 
-Cache the identity function for the api values that need to be included in our template object but no processing.
+Cache the identity function for the api attributes that need to be included in our template object but can be done so without processing.
 
 	ident = (x) -> x
 
@@ -62,9 +62,14 @@ Determine whether the passed argument is of type array or object and is thus com
 	isComposite = (val) -> getType(val) in compositeTypes
 	notComposite = (val) -> not isComposite(val)
 
-As long as the single argument is of a composite data type, ensure that the value is not empty.
+Ensure the input passes two tests:
 
-	notEmpty = (obj) -> Object.keys(obj).length > 0
+* it is not null or undefined
+* if it is either an array or object, it has at least one key/value pair
+
+=
+
+	notEmpty = (obj) -> obj? and (notComposite(obj) or Object.keys(obj).length > 0)
 
 ## Global (Helper) Variables
 
@@ -104,9 +109,9 @@ We now begin iterating over all product SKUs on the site, but only those that ar
 		product = {}
 		details = {}
 
-For each product, we iterate over every key and value on our api handle, but only if the value is not null or undefined and if it is an array or object, it is not empty.
+For each product, we iterate over every key and value on our api handle, but only if the value is not empty (in other words, it is not null or undefined and if it is an array or object, it has at least one key/value pair).
 
-		for key, val of apiProduct when val? and (notComposite(val) or notEmpty(val))
+		for key, val of apiProduct when notEmpty(val)
 
 If the current key has an associated function in `handlers`, evaluate the filter and update `product` as long as the resultant value is not empty. The inclusion of this assignment and validation boilerplate in the `apiProduct` iteration frees the filter functions from having to obfuscate their meaning with irrelevant and redundant assginment statements.
 
