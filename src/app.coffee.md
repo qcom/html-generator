@@ -37,7 +37,7 @@ Convert a string formatted in camelCase style to title style (each term separate
 		uppered = s.toUpperCase()
 		for i in [1...s.length]
 			result += (if s[i] == uppered[i] then " #{uppered[i]}" else s[i])
-		resultA
+		result
 
 Given an array of objects, return an object with key value pairs taken from accessing properties on each object in the object array.  
 The properites that are accessed are passed as string arguments (key and valKey).
@@ -61,8 +61,9 @@ Simple function wrapper over the (typeof value) JavaScript operator, which mainl
 
 Determine whether or not the passed value is of type array or object and is thus composite in nature.
 
-	isComposite = (val) ->
-		getType(val) in ['array','object']
+	compositeTypes = ['array','object']
+	isComposite = (val) -> getType(val) in compositeTypes
+	notComposite = (val) -> getType(val) not in compositeTypes
 
 As long as the single argument passed is either an object or an array, ensure that the composite value is not empty.
 
@@ -107,28 +108,44 @@ Additionally, we set up a few variables needed for the current iteration:
 
 =
 
-	filtered.forEach (sku) ->
+	inApi.forEach (sku) ->
 		apiProduct = api[sku]
 		product = {}
 		details = {}
 
+For each product, we iterate over every key and value on our api handle,  
+but only if the value is not null or undefined and if it is an array or object, it is not empty.
 
+		for key, val of apiProduct when val? and (notComposite(val) or notEmpty val)
 
-		for key, val of apiProduct
-			val = apiProduct[key]
-			type = getType val
-			if val? and (not isComposite(val) or notEmpty val)
-				if key of handlers
-					value = handlers[key](val)
-					if (notEmpty value)
-						product[key] = value
-				else if key of mutateHandlers
-					mutateHandlers[key](val, product)
-				else if key not in exclude
-					details[camelToDisplay key] = val
+If the current key has an associated function in `handlers`, then evaluate the filter mapped to the key and update `product`  
+as long as the resultant value from the filter function is not empty.
 
-		product.details = details if (notEmpty details)
+			if key of handlers
+				result = handlers[key](val)
+				if notEmpty(result)
+					product[key] = result
+
+If the current key was not found in `handlers`, check to see if it exists in `mutateHandlers` and if so, invoke the side-effect-inducing function  
+with the current iteration value as well as a reference to the template obj, `product`.
+
+			else if key of mutateHandlers
+				mutateHandlers[key](val, product)
+
+All remaining keys, provided they are not in `exclude`,  
+will have their display-appropriate version of their key stored in the `details` object mapped to the current value.
+
+			else if key not in exclude
+				details[camelToDisplay key] = val
+
+Attach the details object to our template object, but only if it actually contains any attributes under its namespace.
+
+		product.details = details if notEmpty(details)
+
+As the last step in the current product iteration, add the template object to `data` under the sku as indicated by the api.
 
 		data[apiProduct.productNumber] = product;
+
+After every sku in `inApi` has been iterated over, write the data object to disk.
 
 	fs.writeFileSync './out.json', JSON.stringify(data)
