@@ -37,7 +37,7 @@ Convert a string formatted in camelCase style to title/display style (each term 
 			result += (if s[i] == uppered[i] then ' ' + uppered[i] else s[i])
 		result
 
-Given an array of objects, return an object with key value pairs taken from accessing properties on each object in the object array. The properites that are accessed are passed as string arguments `key` and `valKey`. This function assumes that each `o[key]` value is unique, otherwise overwrites will occur.
+Given an array of objects, return an object with key value pairs taken from accessing properties on each object in the object array. The properites that are accessed are passed as string arguments `key` and `valKey`. This function assumes that each `o[key]` value is unique, otherwise overwrites on `obj` will occur.
 
 	arrToObj = (arr, key, valKey) ->
 		obj = {}
@@ -108,14 +108,13 @@ For each product, we iterate over every key and value on our api handle, but onl
 
 		for key, val of apiProduct when val? and (notComposite(val) or notEmpty(val))
 
-If the current key has an associated function in `handlers`, then evaluate the filter mapped to the key and update `product` as long as the resultant value from the filter function is not empty. The inclusion of this assignment and validation boilerplate in the `apiProduct` iteration frees the filter functions from having to obfuscate their meaning with irrelevant and redundant assginment statements.
+If the current key has an associated function in `handlers`, evaluate the filter and update `product` as long as the resultant value is not empty. The inclusion of this assignment and validation boilerplate in the `apiProduct` iteration frees the filter functions from having to obfuscate their meaning with irrelevant and redundant assginment statements.
 
 			if key of handlers
 				result = handlers[key](val)
-				if notEmpty(result)
-					product[key] = result
+				product[key] = result if notEmpty(result)
 
-If the current key was not found in `handlers`, check to see if it exists in `mutateHandlers`. If so, invoke the side-effect-inducing function with the current iteration value as well as a reference to the `product` template object. The reason `mutateHandlers` even exists is because certain attributes are not replicated key-for-key on template object and thus the generic form of assignment explained above will not suffice.
+If the current key was not found in `handlers`, check to see if it exists in `mutateHandlers`. If so, invoke the side-effect-inducing function with the current iteration value as well as a reference to the `product` template object. The reason `mutateHandlers` exists is because certain attributes are not replicated key-for-key on `product` and thus the generic form of assignment explained above will not suffice.
 
 			else if key of mutateHandlers
 				mutateHandlers[key](val, product)
@@ -123,7 +122,7 @@ If the current key was not found in `handlers`, check to see if it exists in `mu
 All remaining keys, provided they are not in `exclude`, will have the display-appropriate version of their key stored in the `details` object mapped to the current value.
 
 			else if key not in exclude
-				details[camelToDisplay key] = val
+				details[camelToDisplay(key)] = val
 
 As long as `details` contains at least one attribute under its namespace, attach `details` to `product`.
 
@@ -131,7 +130,7 @@ As long as `details` contains at least one attribute under its namespace, attach
 
 As the last step in the current product iteration, add the template object to `data`.
 
-		data[sku] = product;
+		data[sku] = product
 
 After every sku in `inApi` has been iterated over, write the data object to disk.
 
