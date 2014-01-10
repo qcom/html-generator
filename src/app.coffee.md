@@ -92,7 +92,7 @@ The first dispatch object does *not* support a reference-type `product` paramete
 The second dispatch object _does_ accept a reference to `product`, and mutates under conditions appropriate for each attribute.
 
 	mutateHandlers =
-		images : (imageObj, apiProduct) -> apiProduct.schematic = imageObj.schematic if imageObj.schematic?
+		images : (imageObj, product) -> product.schematic = imageObj.schematic if imageObj.schematic?
 
 ## Iteration
 
