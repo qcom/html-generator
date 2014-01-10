@@ -1,0 +1,57 @@
+mixin features(featuresArr)
+	h2 Features
+	ul
+		each feature in featuresArr
+			li!= feature
+
+mixin specifications(length,data)
+	h2 Specifications
+		- var dim = data.lockDimensions
+			if length === 3
+				include includes/specifications/3
+			else if length === 6 || length === 12
+				include includes/specifications/6-12
+			else
+				include includes/specifications/default
+
+mixin details(detailsObj)
+	h2 Details
+	table(border='0', cellspacing='0', cellpadding='0')
+		each value,label in detailsObj
+			tr
+				td!= '<strong>' + label + '</strong>'
+				td.details= value
+
+mixin bestUsedFors(bestUsedForsObj)
+	h2 Best Used For
+	ul
+		each url,label in bestUsedForsObj
+			li
+				a(href=url)= label
+
+mixin videos(videosArr)
+	h2 Videos
+	each video in videosArr
+		h3= video.name
+		div!= video.embededCode
+
+link(rel='stylesheet',href='/slight.css')
+meta(charset='utf8')
+#notIgnify
+	each section,idx in sectionOrder
+		if isAvailable(section,data)
+			div
+				case idx
+					when 0
+						+features(data.features)
+					when 1
+						+specifications(Object.keys(data.lockDimensions).length,data)
+					when 2
+						+details(data.details)
+					when 3
+						+bestUsedFors(data.bestUsedFors)
+					when 4
+						+videos(data.videos)
+			- var next = sectionOrder.slice(idx+1).filter(function(s) { return isAvailable(s,data) })
+				if next.length > 0
+					hr

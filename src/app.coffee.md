@@ -45,7 +45,7 @@ Given an array of objects, return an object with key value pairs taken from acce
 			obj[o[key]] = o[valKey]
 		obj
 
-Simple function wrapper over the tyepof operator, which will be utilized primarily for its distinction of arrays and objects.
+Simple function wrapper over `typeof`, which will be utilized primarily for its distinction of arrays and objects.
 
 	getType = (val) ->
 		type = typeof val
@@ -62,14 +62,15 @@ Determine whether the passed argument is of type array or object and is thus com
 	isComposite = (val) -> getType(val) in compositeTypes
 	notComposite = (val) -> not isComposite(val)
 
-Ensure the input passes two tests:
+Check if a value is meaningful by ensuring the input passes three tests:
 
 * it is not null or undefined
+* if it is a simple type, it is not the empty string
 * if it is either an array or object, it has at least one key/value pair
 
 =
 
-	notEmpty = (obj) -> obj? and (notComposite(obj) or Object.keys(obj).length > 0)
+	notEmpty = (obj) -> obj? and ((notComposite(obj) and obj != "") or Object.keys(obj).length > 0)
 
 ## Global (Helper) Variables
 
@@ -79,17 +80,16 @@ Thanks to the exclusion of unnecessary or incomplete (regarding the api implemen
 
 Two dispatch objects, both of which contain functions for accepting values of the appropriate keys, handle those values appropriately.
 
-The first dispatch object does *not* support a reference-type `apiProduct` parameter; as a result, no side effects are performed.
+The first dispatch object does *not* support a reference-type `product` parameter; as a result, no side effects are performed.
 
 	handlers =
 		features : ident
-		relatedProductNumbers : (arr) ->
-			arr
+		relatedProductNumbers : (arr) -> arr.filter (sku) -> sku in site.skus and sku of api
 		lockDimensions : (arr) -> arrToObj(arr, 'name', 'dimention')
 		bestUsedFors : (arr) -> arrToObj (arr.filter (obj) -> site.bestUsedFors[obj.name]), 'name', 'image'
 		videos : ident
 
-The second dispatch object _does_ accept an `apiProduct` reference, and mutates under conditions appropriate for each attribute.
+The second dispatch object _does_ accept a reference to `product`, and mutates under conditions appropriate for each attribute.
 
 	mutateHandlers =
 		images : (imageObj, apiProduct) -> apiProduct.schematic = imageObj.schematic if imageObj.schematic?
