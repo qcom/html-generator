@@ -109,7 +109,7 @@ We now begin iterating over all product SKUs on the site, but only those that ar
 		product = {}
 		details = {}
 
-For each product, we iterate over every key and value on our api handle, but only if the value is not empty (in other words, it is not null or undefined and if it is an array or object, it has at least one key/value pair).
+For each product, we iterate over every key and value on our api handle, but only if the value is not empty (in other words, it is not null, undefined, or the empty string, and if it is an array or object, it has at least one key/value pair).
 
 		for key, val of apiProduct when notEmpty(val)
 
