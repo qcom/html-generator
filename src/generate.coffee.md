@@ -20,6 +20,8 @@
 	template = jade.compile(fs.readFileSync(templateFile), filename : templateFile, pretty : false)
 	schematicWidths = require '../data/site-schematicWidths'
 	urls = require '../data/site-urls'
+	s = ''
+	output = {}
 
 ## Generation
 
@@ -46,5 +48,9 @@
 			urls : urls
 			sku : sku
 		console.log sku
-		html = template(templateObj)
+		html = template(templateObj).replace('\n','')
+		output[sku] = html
+		s = "#{s}#{sku}\t#{html}\n"
 		fs.writeFileSync "./pages/#{sku}.html", html, 'utf8'
+	fs.writeFileSync './out.csv', s, 'utf8'
+	fs.writeFileSync './output.json', JSON.stringify(output), 'utf8'
