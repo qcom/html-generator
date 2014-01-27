@@ -76,7 +76,7 @@ Check if a value is meaningful by ensuring the input passes three tests:
 
 Thanks to the exclusion of unnecessary or incomplete (regarding the api implementation) keys, once the handling of "special case" attributes (e.g. `relatedProductNumbers`) is complete, where processing specific to those attributes must occur, the remaining iteration over the product object will be entirely dedicated to the `details` section of the template, in which a grab bag of attributes are listed.
 
-	exclude = ['name','url','baseProduct','productNumber','testimonials','pricing','faqs','packaging']
+	exclude = ['name','url','baseProduct','productNumber','testimonials','pricing','faqs','packaging','videos']
 
 Two dispatch objects, both of which contain functions for accepting values of the appropriate keys, handle those values appropriately.
 
@@ -87,7 +87,8 @@ The first dispatch object does *not* support a reference-type `product` paramete
 		relatedProductNumbers : (arr) -> arr.filter (sku) -> sku in site.skus and sku of api
 		lockDimensions : (arr) -> arrToObj(arr, 'name', 'dimention')
 		bestUsedFors : (arr) -> arrToObj (arr.filter (obj) -> site.bestUsedFors[obj.name]), 'name', 'image'
-		videos : ident
+
+		# videos : ident
 
 The second dispatch object _does_ accept a reference to `product`, and mutates under conditions appropriate for each attribute.
 
@@ -115,9 +116,14 @@ For each product, we iterate over every key and value on our api handle, but onl
 
 If the current key has an associated function in `handlers`, evaluate the filter and update `product` as long as the resultant value is not empty. The inclusion of this assignment and validation boilerplate in the `apiProduct` iteration frees the filter functions from having to obfuscate their meaning with irrelevant and redundant assginment statements.
 
+			videoString = '<param name="bgcolor" value="#FFFFFF" />\t'
+
 			if key of handlers
 				result = handlers[key](val)
-				product[key] = result if notEmpty(result)
+				if notEmpty(result)
+					# if key is 'videos'
+						# result.forEach (videoObj) -> videoObj.embededCode = videoObj.embededCode.replace(videoString, '')
+					product[key] = result
 
 If the current key was not found in `handlers`, check to see if it exists in `mutateHandlers`. If so, invoke the side-effect-inducing function with the current iteration value as well as a reference to the `product` template object. The reason `mutateHandlers` exists is because certain attributes are not replicated key-for-key on `product` and thus the generic form of assignment explained above will not suffice.
 

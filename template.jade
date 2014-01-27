@@ -4,8 +4,9 @@ mixin features(featuresArr)
 		each feature in featuresArr
 			li!= feature
 
-mixin specifications(length,data)
+mixin specifications(lockDimensions)
 	h2 Specifications
+		- var length = Object.keys(lockDimensions).length
 		- var dim = data.lockDimensions
 			if length === 3
 				include includes/specifications/3
@@ -38,20 +39,10 @@ mixin videos(videosArr)
 link(rel='stylesheet',href='/slight.css')
 meta(charset='utf8')
 #notIgnify
-	each section,idx in sectionOrder
-		if isAvailable(section,data)
-			div
-				case idx
-					when 0
-						+features(data.features)
-					when 1
-						+specifications(Object.keys(data.lockDimensions).length,data)
-					when 2
-						+details(data.details)
-					when 3
-						+bestUsedFors(data.bestUsedFors)
-					when 4
-						+videos(data.videos)
-			- var next = sectionOrder.slice(idx+1).filter(function(s) { return isAvailable(s,data) })
+	each keys,label in sectionOrder
+		if isAvailable(keys,data)
+			- var next = Object.keys(sectionOrder).map(function(key) { return sectionOrder[key] }).slice(idx+1).filter(function(s) { return isAvailable(s,data) })
+				div(id=label)
+					+#{label}(data[keys[0]])
 				if next.length > 0
 					hr

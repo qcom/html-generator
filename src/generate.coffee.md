@@ -27,15 +27,19 @@
 		templateObj = 
 			data : productData
 			dataset : data
-			sectionOrder : [
-				'features'
-				['schematic','lockDimensions']
-				'details'
-				'bestUsedFors'
-				'videos'
-			]
+			sectionOrder : {
+				features :
+					['features']
+				specifications :
+					['lockDimensions','schematic']
+				details :
+					['details']
+				bestUsedFors :
+					['bestUsedFors']
+				videos :
+					['videos']
+			}
 			isAvailable : (keys, obj) ->
-				keys = [keys] if typeof keys == 'string'
 				length = (keys.filter (key) -> key of obj).length
 				length > 0 and length == keys.length
 			schematicWidths : schematicWidths
