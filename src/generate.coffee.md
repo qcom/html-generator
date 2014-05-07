@@ -20,7 +20,7 @@
 	template = jade.compile(fs.readFileSync(templateFile), filename : templateFile, pretty : false)
 	schematicWidths = require '../data/site-schematicWidths'
 	urls = require '../data/site-urls'
-	s = ''
+	s = 'sku\thtml\n'
 	output = {}
 
 ## Generation

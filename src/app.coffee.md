@@ -19,7 +19,7 @@
 		skus : require '../data/site-skus'
 		bestUsedFors : require '../data/site-bestUsedFors'
 	api = require '../data/api'
-	inApi = site.skus.filter (sku) -> sku of api
+	skus = Object.keys api
 	data = {}
 
 ## Utility Functions
@@ -105,7 +105,7 @@ We now begin iterating over all product SKUs on the site, but only those that ar
 
 =
 
-	inApi.forEach (sku) ->
+	skus.forEach (sku) ->
 		apiProduct = api[sku]
 		product = {}
 		details = {}
@@ -143,6 +143,6 @@ As the last step in the current product iteration, add the template object to `d
 
 		data[sku] = product
 
-After every sku in `inApi` has been iterated over, write the data object to disk.
+After every sku in `skus` has been iterated over, write the data object to disk.
 
 	fs.writeFileSync './out.json', JSON.stringify(data)
